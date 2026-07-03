@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kardashev"
+version = "0.1.0"
+description = "Python client for the Kardashev Labs energy data API"
+requires-python = ">=3.9"
+dependencies = ["httpx>=0.24"]
+
+[project.optional-dependencies]
+pandas = ["pandas>=1.5"]
+dev = ["pytest", "pytest-httpx", "pandas"]
+
+[project.urls]
+Homepage = "https://kardashevlabs.org"
+API = "https://data.kardashevlabs.org/docs"
+Source = "https://github.com/kardashev-lab/kardashev-py"
