@@ -100,7 +100,7 @@ class Client:
         ))
 
     def carbon_latest(self, iso: Optional[str] = None) -> Any:
-        """Latest carbon snapshot — one row per ISO."""
+        """Latest carbon snapshot. One row per ISO."""
         return _to_df(self._get("/carbon/latest", iso=iso.upper() if iso else None))
 
     # ------------------------------------------------------------------
@@ -130,7 +130,7 @@ class Client:
         ))
 
     def lmp_map(self, iso: str, market: str = "RT") -> Any:
-        """Latest LMP for all nodes with lat/lng — for map rendering."""
+        """Latest LMP for all nodes with lat/lng, for map rendering."""
         return _to_df(self._get("/lmp/map", iso=iso.upper(), market=market.upper()))
 
     def lmp_hubs(self, iso: Optional[str] = None) -> Any:
@@ -377,7 +377,7 @@ class Client:
         ))
 
     def ancillary_latest(self, iso: Optional[str] = None) -> Any:
-        """Latest ancillary snapshot — one row per (ISO, market, service_type)."""
+        """Latest ancillary snapshot. One row per (ISO, market, service_type)."""
         return _to_df(self._get(
             "/ancillary/latest",
             iso=iso.upper() if iso else None,

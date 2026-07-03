@@ -1,13 +1,13 @@
 """
-PJM Interconnection data client — DataMiner2 feed API.
+PJM Interconnection data client (DataMiner2 feed API).
 
 Auth: PJM username + password from dataminer2.pjm.com account.
       Set PJM_USERNAME and PJM_PASSWORD env vars.
 
 DataMiner2 feed base: https://dataminer2.pjm.com/feed/
 Key feeds used:
-  rt_hrl_lmps  — RT hourly LMP, all nodes (posted daily ~11am-12pm ET)
-  da_hrl_lmps  — DA hourly LMP, all nodes (posted morning of delivery day)
+  rt_hrl_lmps  - RT hourly LMP, all nodes (posted daily ~11am-12pm ET)
+  da_hrl_lmps  - DA hourly LMP, all nodes (posted morning of delivery day)
 
 Node types: HUB, ZONE, AGGREGATE, BUS, INTERFACE, LOAD_ZONE
 """
@@ -70,7 +70,7 @@ def _dm2_fetch(feed: str, start: date, end: date, node_type: str | None = None) 
 
 
 # ---------------------------------------------------------------------------
-# LMP — RT hourly (settled, posted daily)
+# LMP - RT hourly (settled, posted daily)
 # ---------------------------------------------------------------------------
 
 def get_lmp_rt_hourly(
@@ -91,7 +91,7 @@ def get_lmp_rt_hourly(
 
 
 # ---------------------------------------------------------------------------
-# LMP — DA hourly (posted morning of delivery day)
+# LMP - DA hourly (posted morning of delivery day)
 # ---------------------------------------------------------------------------
 
 def get_lmp_da_hourly(

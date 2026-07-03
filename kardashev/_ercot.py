@@ -26,7 +26,7 @@ Sources (no auth required):
 
 NOTE: ERCOT does not publish a clean renewable curtailment endpoint.
       Curtailment is estimated as max(0, potential - actual).
-      The dashboard JSON endpoints update every 5–15 minutes.
+      The dashboard JSON endpoints update every 5-15 minutes.
 """
 from __future__ import annotations
 
