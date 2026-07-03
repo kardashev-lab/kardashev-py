@@ -4,11 +4,18 @@ build-backend = "hatchling.build"
 
 [project]
 name = "kardashev"
-version = "0.1.2"
-description = "Python client for the Kardashev Labs energy data API"
+version = "0.2.0"
+description = "Open energy data for all US ISOs - direct access to CAISO, ERCOT, MISO, NYISO, ISONE, SPP, PJM"
 readme = "README.md"
 requires-python = ">=3.9"
-dependencies = ["httpx>=0.24"]
+dependencies = [
+    "httpx>=0.24",
+    "requests>=2.32",
+    "pandas>=2.0",
+    "numpy>=1.26",
+    "pytz>=2024",
+    "openpyxl>=3.1",
+]
 
 [project.optional-dependencies]
 pandas = ["pandas>=1.5"]
