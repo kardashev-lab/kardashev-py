@@ -1,6 +1,6 @@
 # kardashev
 
-Python client for the [Kardashev Labs](https://kardashevlabs.org) energy data API — a free, open energy data platform covering LMP prices, grid load, fuel mix, carbon intensity, curtailment, interconnection queues, and more across all major US ISOs.
+Python client for the [Kardashev Labs](https://kardashevlabs.org) energy data API - a free, open energy data platform covering LMP prices, grid load, fuel mix, carbon intensity, curtailment, interconnection queues, and more across all major US ISOs.
 
 ## Install
 
@@ -58,7 +58,7 @@ nodes = kl.lmp_map(iso="PJM", market="RT")
 
 ## ISOs supported
 
-CAISO · ERCOT · ISONE · MISO · NYISO · PJM · SPP
+CAISO, ERCOT, ISONE, MISO, NYISO, PJM, SPP
 
 ## Custom base URL
 
