@@ -158,8 +158,23 @@ def get_lmp_hourly(location: str | int, start: date, end: date | None = None) ->
 # ---------------------------------------------------------------------------
 
 def get_interconnection_queue() -> pd.DataFrame:
-    """ISONE interconnection queue (requires ISONE session)."""
-    return _transform_csv("interconnectionqueue", {})
+    """ISONE interconnection queue.
+
+    The old transform/csv endpoint (used by other functions in this file)
+    returns 404 for this dataset now. ISO-NE publishes the live public
+    queue as an HTML table on the IRTT tool instead.
+    """
+    r = _http.get("https://irtt.iso-ne.com/reports/external")
+    df = pd.read_html(io.StringIO(r.text), attrs={"id": "publicqueue"})[0]
+    return df.rename(columns={
+        "QP": "Queue No",
+        "Alternative Name": "Project Name",
+        "County": "Town",
+        "ST": "State",
+        "Summer MW": "Summer Capacity (MW)",
+        "Requested": "Queue Date",
+        "Op Date": "Proposed In-Service",
+    })
 
 
 def get_capacity_market() -> pd.DataFrame:

@@ -112,6 +112,20 @@ def get_generators() -> pd.DataFrame:
 
 
 def get_interconnection_queue() -> pd.DataFrame:
-    """NYISO interconnection queue."""
-    url = f"{_BASE}/interconnections/interconnections.csv"
-    return _http.get_csv(url)
+    """NYISO interconnection queue (active projects).
+
+    NYISO retired the mis.nyiso.com CSV export; the queue is now published
+    as an Excel workbook with separate sheets per status. This covers the
+    active "Interconnection Queue" sheet only — withdrawn projects live in
+    a separate "Withdrawn" sheet with different columns.
+    """
+    url = "https://www.nyiso.com/documents/20142/1407078/NYISO-Interconnection-Queue.xlsx"
+    df = _http.get_excel(url, sheet_name="Interconnection Queue")
+    df = df.rename(columns={
+        "Queue Pos.": "Queue Pos",
+        "Date of IR": "Queue Date",
+        "Type/ Fuel": "Fuel Type",
+        "Proposed In-Service/Initial Backfeed Date": "Date of Initial Operation",
+    })
+    df["Status"] = "Active"
+    return df

@@ -141,6 +141,23 @@ def get_lmp_rtbm_latest() -> pd.DataFrame:
     return pd.read_csv(io.StringIO(r.text))
 
 
+def get_interconnection_queue() -> pd.DataFrame:
+    """SPP generator interconnection queue (public CSV, no auth)."""
+    r = _http.get("https://opsportal.spp.org/Studies/GenerateSummaryCSV")
+    df = pd.read_csv(io.StringIO(r.text), skiprows=1)
+    return df.rename(columns={
+        "Generation Interconnection Number": "queue_position",
+        " Nearest Town or County": "county",
+        "State": "state",
+        "Fuel Type": "fuel_type",
+        "Capacity": "mw",
+        "Status": "status",
+        "Request Received": "queue_date",
+        "Commercial Operation Date": "online_date",
+        "Date Withdrawn": "withdrawal_date",
+    })
+
+
 # ---------------------------------------------------------------------------
 # Load / demand
 # ---------------------------------------------------------------------------

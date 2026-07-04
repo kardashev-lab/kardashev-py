@@ -275,6 +275,56 @@ def get_dam_settlement() -> pd.DataFrame:
 # Season / capacity
 # ---------------------------------------------------------------------------
 
+def _find_header_row(df: pd.DataFrame, marker: str = "INR", max_rows: int = 50) -> int:
+    for i in range(min(max_rows, len(df))):
+        if marker in {str(v).strip() for v in df.iloc[i].dropna().values}:
+            return i
+    raise ValueError(f"ERCOT GIS report: no header row found with marker {marker!r}")
+
+
+def get_interconnection_queue() -> pd.DataFrame:
+    """ERCOT generator interconnection queue (public GIS report, no auth).
+
+    Covers the "Project Details - Large Gen" sheet only (active large
+    generation projects) — the GIS report also has separate sheets for
+    small gen, inactive, and cancelled projects with different layouts,
+    not covered here. The report is republished monthly under a new
+    DocID, looked up dynamically via ERCOT's MIS report list API.
+    """
+    import io as _io
+
+    listing = _http.get(
+        "https://www.ercot.com/misapp/servlets/IceDocListJsonWS",
+        params={"reportTypeId": 15933},
+    ).json()
+    docs = [
+        d["Document"] for d in listing["ListDocsByRptTypeRes"]["DocumentList"]
+        if d["Document"]["FriendlyName"].startswith("GIS_Report")
+    ]
+    latest = max(docs, key=lambda d: d["PublishDate"])
+
+    r = _http.get(
+        "https://www.ercot.com/misdownload/servlets/mirDownload",
+        params={"doclookupId": latest["DocID"]},
+    )
+    raw = pd.read_excel(_io.BytesIO(r.content), sheet_name="Project Details - Large Gen", header=None)
+    header_row = _find_header_row(raw)
+    df = pd.read_excel(_io.BytesIO(r.content), sheet_name="Project Details - Large Gen", header=header_row)
+    # rows right after the header are wrapped column-note text, not data
+    df = df.dropna(subset=["Project Name"]).reset_index(drop=True)
+
+    df["state"] = "TX"
+    return df.rename(columns={
+        "INR": "queue_position",
+        "Project Name": "project_name",
+        "County": "county",
+        "Fuel": "fuel_type",
+        "Capacity (MW)": "mw",
+        "GIM Study Phase": "status",
+        "Projected COD": "online_date",
+    })
+
+
 def get_season_dashboard() -> dict:
     """Seasonal peak demand and reserve margin data."""
     return _dash("season-dashboard")

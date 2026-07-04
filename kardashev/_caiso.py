@@ -195,6 +195,29 @@ def _oasis_query(queryname: str, start: date, end: date, extra: dict | None = No
         return pd.read_csv(_io.BytesIO(zf.read(csv_names[0])))
 
 
+def get_interconnection_queue() -> pd.DataFrame:
+    """CAISO generator interconnection queue (public xlsx, no auth).
+
+    Active projects only, from the "Grid GenerationQueue" sheet. CAISO also
+    publishes "Completed Generation Projects" and "Withdrawn Generation
+    Projects" sheets with different columns, not covered here.
+    """
+    import io as _io
+    r = _http.get("http://www.caiso.com/PublishedDocuments/PublicQueueReport.xlsx")
+    df = pd.read_excel(_io.BytesIO(r.content), sheet_name="Grid GenerationQueue", header=3)
+    return df.rename(columns={
+        "Queue Position": "queue_position",
+        "Project Name": "project_name",
+        "County": "county",
+        "State": "state",
+        "Fuel-1": "fuel_type",
+        "Net MWs to Grid": "mw",
+        "Application Status": "status",
+        "Queue Date": "queue_date",
+        "Current\nOn-line Date": "online_date",
+    })
+
+
 def get_lmp_dam(node: str, start: date, end: date) -> pd.DataFrame:
     """Day-ahead LMP for a pricing node."""
     return _oasis_query("PRC_LMP", start, end, {"market_run_id": "DAM", "node": node})

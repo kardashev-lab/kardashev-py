@@ -107,3 +107,41 @@ def get_lmp_da_hourly(
       total_lmp_da, system_energy_price_da, congestion_price_da, marginal_loss_price_da
     """
     return _dm2_fetch("da_hrl_lmps", start, end or start, node_type=node_type)
+
+
+# ---------------------------------------------------------------------------
+# Interconnection queue
+# ---------------------------------------------------------------------------
+
+# PJM's public planning-queue export doesn't go through DataMiner2 — it's a
+# separate services.pjm.com endpoint used by pjm.com's own queue viewer.
+# The subscription key below is the one that page ships to browsers (not a
+# PJM_USERNAME/PJM_PASSWORD-gated secret); PJM may rotate it without notice.
+_QUEUE_EXPORT_URL = "https://services.pjm.com/PJMPlanningApi/api/Queue/ExportToXls"
+_QUEUE_SUBSCRIPTION_KEY = "E29477D0-70E0-4825-89B0-43F460BF9AB4"
+
+
+def get_interconnection_queue() -> pd.DataFrame:
+    """PJM planning queue (all projects: active, in service, withdrawn)."""
+    r = _http.post(
+        _QUEUE_EXPORT_URL,
+        headers={
+            "api-subscription-key": _QUEUE_SUBSCRIPTION_KEY,
+            "Host": "services.pjm.com",
+            "Origin": "https://www.pjm.com",
+            "Referer": "https://www.pjm.com/",
+        },
+    )
+    df = pd.read_excel(io.BytesIO(r.content))
+    return df.rename(columns={
+        "Project ID": "queue_position",
+        "Name": "project_name",
+        "County": "county",
+        "State": "state",
+        "Fuel": "fuel_type",
+        "MW Capacity": "mw",
+        "Status": "status",
+        "Submitted Date": "queue_date",
+        "Projected In Service Date": "online_date",
+        "Withdrawal Date": "withdrawal_date",
+    })

@@ -155,6 +155,23 @@ def get_rt_binding_constraints_annual(year: int) -> pd.DataFrame:
     return _http.get_csv(url)
 
 
+def get_interconnection_queue() -> pd.DataFrame:
+    """MISO generator interconnection queue (public JSON API, no auth)."""
+    r = _http.get("https://www.misoenergy.org/api/giqueue/getprojects")
+    df = pd.DataFrame(r.json())
+    return df.rename(columns={
+        "projectNumber": "queue_position",
+        "county": "county",
+        "state": "state",
+        "fuelType": "fuel_type",
+        "summerNetMW": "mw",
+        "applicationStatus": "status",
+        "queueDate": "queue_date",
+        "inService": "online_date",
+        "withdrawnDate": "withdrawal_date",
+    })
+
+
 def get_generation_outages(target: date) -> pd.DataFrame:
     """
     7-day generation outage forecast by region and type from MISO mom.xlsx OUTAGE sheet.

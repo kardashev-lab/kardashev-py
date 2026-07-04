@@ -60,6 +60,18 @@ def get_csv(url: str, params: dict | None = None, **kwargs: Any):
     return pd.read_csv(io.StringIO(r.text))
 
 
+def get_excel(url: str, params: dict | None = None, sheet_name: str | int = 0, **kwargs: Any):
+    import pandas as pd
+    r = get(url, params=params, **kwargs)
+    return pd.read_excel(io.BytesIO(r.content), sheet_name=sheet_name)
+
+
+def post(url: str, headers: dict | None = None, **kwargs: Any) -> requests.Response:
+    r = _get_shared_session().post(url, timeout=60, headers=headers, **kwargs)
+    r.raise_for_status()
+    return r
+
+
 def get_zip_csv(url: str, params: dict | None = None, filename_hint: str = "") -> list:
     """Download a zip and return list of (filename, BytesIO) for CSV members."""
     r = get(url, params=params)
