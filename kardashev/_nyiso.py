@@ -127,5 +127,8 @@ def get_interconnection_queue() -> pd.DataFrame:
         "Type/ Fuel": "Fuel Type",
         "Proposed In-Service/Initial Backfeed Date": "Date of Initial Operation",
     })
+    # rows after the last project are a "NOTES:" footer with footnote numbers
+    # sitting in otherwise-empty columns (e.g. stray ints in Queue Date) - not data
+    df = df.dropna(subset=["Project Name"]).reset_index(drop=True)
     df["Status"] = "Active"
     return df

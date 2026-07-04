@@ -205,6 +205,8 @@ def get_interconnection_queue() -> pd.DataFrame:
     import io as _io
     r = _http.get("http://www.caiso.com/PublishedDocuments/PublicQueueReport.xlsx")
     df = pd.read_excel(_io.BytesIO(r.content), sheet_name="Grid GenerationQueue", header=3)
+    # trailing rows are a legal disclaimer with no Queue Position, not a project
+    df = df.dropna(subset=["Queue Position"]).reset_index(drop=True)
     return df.rename(columns={
         "Queue Position": "queue_position",
         "Project Name": "project_name",
