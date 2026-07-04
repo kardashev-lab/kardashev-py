@@ -2,6 +2,8 @@
 
 Open energy data for all US ISOs. Direct access to CAISO, ERCOT, MISO, NYISO, ISONE, SPP, and PJM - no API key, no rate limits, no gridstatus dependency.
 
+[![PyPI Downloads](https://static.pepy.tech/personalized-badge/kardashev?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/kardashev)
+
 ## Install
 
 ```bash
