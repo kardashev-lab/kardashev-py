@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.4
+
+- Add `py.typed` marker
+- Add `examples/` directory with runnable scripts for direct ISO access, LMP, carbon intensity, map nodes, and interconnection queue
+- Add `CONTRIBUTING.md`
+- Add comparison table to README
+
 ## 0.2.3
 
 - Add PyPI keywords/classifiers, MIT `LICENSE` file, and this changelog

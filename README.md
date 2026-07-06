@@ -115,6 +115,20 @@ CAISO, ERCOT, ISONE, MISO, NYISO, PJM, SPP
 kl = Client(base_url="https://data.kardashevlabs.org")
 ```
 
+## Comparison
+
+| | kardashev | gridstatus |
+|---|---|---|
+| API key required | No | No (direct ISO access); hosted `gridstatusio` client requires a key |
+| License | MIT | BSD-3-Clause |
+| US ISO coverage | 7 (CAISO, ERCOT, MISO, NYISO, ISONE, SPP, PJM) | 7 US ISOs + IESO, AESO (Canada), plus EIA |
+| Hosted normalized API | Yes, free, no key (`Client`) | Yes, paid tiers (`gridstatusio`) |
+| Direct ISO scrapers | Yes, for 6 of 7 ISOs | Yes, for all covered ISOs |
+| Datasets | 25+ | 450+ |
+| Maturity | Early (2026) | 3+ years, funded, staffed |
+
+Use `gridstatus` if you need Canadian ISOs, EIA data, or the widest dataset catalog. Use `kardashev` if you want a free hosted API with no key for the 7 major US ISOs, or direct no-key scrapers for the same set.
+
 ## Links
 
 - API docs: [data.kardashevlabs.org/docs](https://data.kardashevlabs.org/docs)
