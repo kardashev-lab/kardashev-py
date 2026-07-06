@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.3.0
+
+Bug fix release: six `Client` methods were silently calling endpoints that don't exist on the hosted API (always returned 404). Fixed by pointing them at the real endpoints, which required splitting a few into named sub-methods since the API doesn't expose a single unified endpoint for these datasets.
+
+- Fix `queue()`: was calling `/queue` (404), now calls `/interconnection-queue`
+- Fix `nuclear_status()`: was calling `/nuclear/status` (404), now calls `/nuclear`; add `nuclear_summary()` for `/nuclear/summary`
+- Fix `nuclear_summary()`/`/nuclear/summary` returning a single object, not rows - no longer routed through the DataFrame converter
+- Replace `generation()` (called nonexistent `/generation`) with `generation_wind_solar()`, `generation_battery()`, `generation_btm_solar()`, `generation_reserve_margins()`
+- Replace `hydro()` (called nonexistent `/hydro`) with `hydro_reservoirs()`, `hydro_reservoirs_latest()`, `hydro_streamflow()`
+- Replace `solar()` (called nonexistent `/solar`) with `solar_irradiance()`, `solar_irradiance_locations()`, `solar_irradiance_latest()`
+- Replace `commodities()` (called nonexistent `/commodities`) with `commodities_coal()`, `commodities_petroleum()`, `commodities_power_burn()`, `steo_forecast()`
+- Add `outages_summary()` and `ancillary_latest()` to README endpoint table (existed in code, were undocumented)
+- Note two known backend issues (not client bugs): `outages()` and `commodities_coal()`/`commodities_power_burn()` currently 500 from the hosted API - see `coverage.yaml`
+
+This is a breaking change for the four replaced methods, but since they always 404'd, no working caller could have depended on their old signatures.
+
 ## 0.2.5
 
 - Add `coverage.yaml` (per-ISO dataset support matrix, generated from actual method inventory)

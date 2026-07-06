@@ -175,25 +175,43 @@ class Client:
     # Generation
     # ------------------------------------------------------------------
 
-    def generation(
+    def generation_wind_solar(
         self,
-        iso: Optional[str] = None,
+        iso: str,
         fuel_type: Optional[str] = None,
-        start: Optional[date] = None,
-        end: Optional[date] = None,
         hours: int = 24,
         limit: int = 2000,
     ) -> Any:
-        """Generation by fuel type for an ISO."""
+        """Wind/solar generation forecast for an ISO."""
         return _to_df(self._get(
-            "/generation",
-            iso=iso.upper() if iso else None,
+            "/generation/wind-solar",
+            iso=iso.upper(),
             fuel_type=fuel_type,
-            start=_fmt(start),
-            end=_fmt(end),
             hours=hours,
             limit=limit,
         ))
+
+    def generation_battery(
+        self,
+        iso: str = "CAISO",
+        hours: int = 24,
+        limit: int = 2000,
+    ) -> Any:
+        """Battery storage state of charge/output. Currently CAISO only."""
+        return _to_df(self._get("/generation/battery", iso=iso.upper(), hours=hours, limit=limit))
+
+    def generation_btm_solar(
+        self,
+        iso: str = "NYISO",
+        hours: int = 24,
+        limit: int = 2000,
+    ) -> Any:
+        """Behind-the-meter solar estimate. Currently NYISO only."""
+        return _to_df(self._get("/generation/btm-solar", iso=iso.upper(), hours=hours, limit=limit))
+
+    def generation_reserve_margins(self, iso: Optional[str] = None) -> Any:
+        """Planning reserve margins by ISO."""
+        return _to_df(self._get("/generation/reserve-margins", iso=iso.upper() if iso else None))
 
     # ------------------------------------------------------------------
     # Curtailment
@@ -390,9 +408,16 @@ class Client:
     def nuclear_status(self, iso: Optional[str] = None) -> Any:
         """Current nuclear unit capacity and output."""
         return _to_df(self._get(
-            "/nuclear/status",
+            "/nuclear",
             iso=iso.upper() if iso else None,
         ))
+
+    def nuclear_summary(self, iso: Optional[str] = None) -> Any:
+        """Nuclear capacity/output summary. Returns a single object, not rows."""
+        clean = {k: v for k, v in {"iso": iso.upper() if iso else None}.items() if v is not None}
+        r = self._http.get("/nuclear/summary", params=clean)
+        r.raise_for_status()
+        return r.json()
 
     # ------------------------------------------------------------------
     # Emissions
@@ -420,21 +445,43 @@ class Client:
     # Hydro
     # ------------------------------------------------------------------
 
-    def hydro(
+    def hydro_reservoirs(
         self,
-        iso: Optional[str] = None,
+        reservoir: Optional[str] = None,
         start: Optional[date] = None,
         end: Optional[date] = None,
-        hours: int = 24,
-        limit: int = 2000,
+        days: int = 90,
+        limit: int = 5000,
     ) -> Any:
-        """Hydro generation and reservoir conditions."""
+        """Reservoir storage levels."""
         return _to_df(self._get(
-            "/hydro",
-            iso=iso.upper() if iso else None,
+            "/hydro/reservoirs",
+            reservoir=reservoir,
             start=_fmt(start),
             end=_fmt(end),
-            hours=hours,
+            days=days,
+            limit=limit,
+        ))
+
+    def hydro_reservoirs_latest(self) -> Any:
+        """Latest reservoir storage snapshot."""
+        return _to_df(self._get("/hydro/reservoirs/latest"))
+
+    def hydro_streamflow(
+        self,
+        site_id: Optional[str] = None,
+        start: Optional[date] = None,
+        end: Optional[date] = None,
+        days: int = 7,
+        limit: int = 5000,
+    ) -> Any:
+        """USGS streamflow by site."""
+        return _to_df(self._get(
+            "/hydro/streamflow",
+            site_id=site_id,
+            start=_fmt(start),
+            end=_fmt(end),
+            days=days,
             limit=limit,
         ))
 
@@ -442,23 +489,31 @@ class Client:
     # Solar
     # ------------------------------------------------------------------
 
-    def solar(
+    def solar_irradiance(
         self,
-        iso: Optional[str] = None,
+        location: Optional[str] = None,
         start: Optional[date] = None,
         end: Optional[date] = None,
-        hours: int = 24,
-        limit: int = 2000,
+        days: int = 7,
+        limit: int = 10000,
     ) -> Any:
-        """Solar generation and curtailment by ISO."""
+        """Solar irradiance by location."""
         return _to_df(self._get(
-            "/solar",
-            iso=iso.upper() if iso else None,
+            "/solar/irradiance",
+            location=location,
             start=_fmt(start),
             end=_fmt(end),
-            hours=hours,
+            days=days,
             limit=limit,
         ))
+
+    def solar_irradiance_locations(self) -> Any:
+        """Tracked irradiance station locations."""
+        return _to_df(self._get("/solar/irradiance/locations"))
+
+    def solar_irradiance_latest(self) -> Any:
+        """Latest irradiance snapshot per location."""
+        return _to_df(self._get("/solar/irradiance/latest"))
 
     # ------------------------------------------------------------------
     # Interconnection queue
@@ -473,7 +528,7 @@ class Client:
     ) -> Any:
         """Generator interconnection queue entries."""
         return _to_df(self._get(
-            "/queue",
+            "/interconnection-queue",
             iso=iso.upper() if iso else None,
             status=status,
             fuel_type=fuel_type,
@@ -484,23 +539,43 @@ class Client:
     # Commodities
     # ------------------------------------------------------------------
 
-    def commodities(
+    def commodities_coal(
         self,
-        commodity: Optional[str] = None,
+        rank: Optional[str] = None,
+        months: int = 24,
+    ) -> Any:
+        """EIA monthly coal prices by rank ($/short ton)."""
+        return _to_df(self._get("/commodities/coal", rank=rank, months=months))
+
+    def commodities_petroleum(
+        self,
+        product: Optional[str] = None,
         start: Optional[date] = None,
         end: Optional[date] = None,
         days: int = 90,
-        limit: int = 2000,
+        limit: int = 5000,
     ) -> Any:
-        """Commodity prices (coal, uranium, carbon credits)."""
+        """EIA daily petroleum spot prices (WTI, Brent, RBOB, heating oil)."""
         return _to_df(self._get(
-            "/commodities",
-            commodity=commodity,
+            "/commodities/petroleum",
+            product=product,
             start=_fmt(start),
             end=_fmt(end),
             days=days,
             limit=limit,
         ))
+
+    def commodities_power_burn(
+        self,
+        state: Optional[str] = None,
+        months: int = 12,
+    ) -> Any:
+        """EIA monthly natural gas used for power generation ("power burn")."""
+        return _to_df(self._get("/commodities/power-burn", state=state, months=months))
+
+    def steo_forecast(self) -> Any:
+        """EIA Short-Term Energy Outlook: monthly 2-year energy forecasts."""
+        return _to_df(self._get("/forecasts/steo"))
 
     # ------------------------------------------------------------------
     # Carbon markets

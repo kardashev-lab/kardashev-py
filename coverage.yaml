@@ -87,7 +87,13 @@ hosted_api:
   note: >
     The Client (data.kardashevlabs.org) provides normalized, uniform coverage
     across all 7 ISOs for fuel_mix, carbon, lmp, lmp_map, lmp_hubs, load,
-    load_forecast, generation, curtailment, interchange, ancillary, outages,
-    emissions, hydro, solar, and queue, plus non-ISO datasets (nat_gas,
-    weather, nuclear_status, commodities, carbon_markets). See README.md for
-    the full endpoint list.
+    load_forecast, curtailment, interchange, ancillary, outages, emissions,
+    and queue, plus non-ISO datasets (nat_gas, weather, nuclear_status,
+    nuclear_summary, commodities_*, carbon_markets). generation, hydro, and
+    solar are split into named sub-endpoints (e.g. generation_wind_solar,
+    hydro_reservoirs, solar_irradiance) rather than one per-ISO call, since
+    the underlying API exposes them that way. See README.md for the full
+    endpoint list.
+  known_issues:
+    - "outages() (unit-level, /outages) returns HTTP 500 from the hosted API - backend issue, not a client bug"
+    - "commodities_coal() and commodities_power_burn() return HTTP 500 from the hosted API - backend issue, not a client bug"

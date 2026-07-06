@@ -125,14 +125,30 @@ kl.queue(iso="MISO").to_csv("miso_queue.csv")
 | `nat_gas_storage()` | EIA weekly storage report |
 | `weather(city)` | Weather observations |
 | `outages(iso)` | Generator outage reports |
+| `outages_summary()` | Total MW in outage by ISO x type |
 | `ancillary(iso, market)` | Ancillary service prices |
+| `ancillary_latest()` | Latest ancillary snapshot |
 | `nuclear_status()` | Nuclear plant capacity factors |
+| `nuclear_summary()` | Nuclear fleet capacity/output summary |
 | `emissions(iso)` | SO₂/NOₓ emission rates |
-| `hydro(iso)` | Hydro generation |
-| `solar(iso)` | Solar generation |
+| `generation_wind_solar(iso)` | Wind/solar generation forecast |
+| `generation_battery()` | Battery storage (CAISO) |
+| `generation_btm_solar()` | Behind-the-meter solar (NYISO) |
+| `generation_reserve_margins()` | Planning reserve margins |
+| `hydro_reservoirs()` | Reservoir storage levels |
+| `hydro_reservoirs_latest()` | Latest reservoir snapshot |
+| `hydro_streamflow()` | USGS streamflow by site |
+| `solar_irradiance()` | Solar irradiance by location |
+| `solar_irradiance_locations()` | Tracked irradiance stations |
+| `solar_irradiance_latest()` | Latest irradiance snapshot |
 | `queue(iso)` | Interconnection queue |
-| `commodities()` | Power/gas commodity prices |
+| `commodities_coal()` | Coal prices by rank |
+| `commodities_petroleum()` | Petroleum spot prices |
+| `commodities_power_burn()` | Gas consumed for power generation |
+| `steo_forecast()` | EIA Short-Term Energy Outlook |
 | `carbon_markets()` | RGGI/WCI carbon market prices |
+
+Note: `outages()` (unit-level generator outages) currently returns a 500 from the hosted API - a known backend issue, not a client bug. `outages_summary()` works.
 
 ## ISOs supported
 
