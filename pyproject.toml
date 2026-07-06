@@ -4,10 +4,44 @@ build-backend = "hatchling.build"
 
 [project]
 name = "kardashev"
-version = "0.2.2"
-description = "Open energy data for all US ISOs - direct access to CAISO, ERCOT, MISO, NYISO, ISONE, SPP, PJM"
+version = "0.2.3"
+description = "Open energy data for all US ISOs - direct access to CAISO, ERCOT, MISO, NYISO, ISONE, SPP, PJM. Free, open-source gridstatus alternative with no API key required."
 readme = "README.md"
 requires-python = ">=3.9"
+license = "MIT"
+authors = [{ name = "Kardashev Labs", email = "ashutosh@kardashevlabs.org" }]
+keywords = [
+    "energy",
+    "electricity",
+    "grid",
+    "ISO",
+    "RTO",
+    "CAISO",
+    "ERCOT",
+    "MISO",
+    "NYISO",
+    "ISONE",
+    "SPP",
+    "PJM",
+    "LMP",
+    "wholesale electricity prices",
+    "power grid data",
+    "gridstatus alternative",
+    "energy data api",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 dependencies = [
     "httpx>=0.24",
     "requests>=2.32",
@@ -26,3 +60,4 @@ dev = ["pytest", "pytest-httpx", "pandas"]
 Homepage = "https://kardashevlabs.org"
 API = "https://data.kardashevlabs.org/docs"
 Source = "https://github.com/kardashev-lab/kardashev-py"
+Changelog = "https://github.com/kardashev-lab/kardashev-py/blob/main/CHANGELOG.md"

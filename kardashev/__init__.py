@@ -7,5 +7,5 @@ from kardashev.isone import ISONE
 from kardashev.spp import SPP
 from kardashev.pjm import PJM
 
-__version__ = "0.2.0"
+__version__ = "0.2.3"
 __all__ = ["Client", "CAISO", "ERCOT", "MISO", "NYISO", "ISONE", "SPP", "PJM"]

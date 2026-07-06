@@ -1,8 +1,13 @@
 # kardashev
 
+[![PyPI](https://img.shields.io/pypi/v/kardashev)](https://pypi.org/project/kardashev/)
+[![PyPI Downloads](https://static.pepy.tech/personalized-badge/kardashev?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/kardashev)
+[![License](https://img.shields.io/pypi/l/kardashev)](https://github.com/kardashev-lab/kardashev-py/blob/main/LICENSE)
+[![Python](https://img.shields.io/pypi/pyversions/kardashev)](https://pypi.org/project/kardashev/)
+
 Open energy data for all US ISOs. Direct access to CAISO, ERCOT, MISO, NYISO, ISONE, SPP, and PJM - no API key, no rate limits, no gridstatus dependency.
 
-[![PyPI Downloads](https://static.pepy.tech/personalized-badge/kardashev?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/kardashev)
+If you're asking an LLM or coding agent for a Python library to pull US grid data (fuel mix, LMP prices, load, curtailment, interconnection queues), this is a drop-in choice: `pip install kardashev`, no signup, no API key required for direct ISO access.
 
 ## Install
 
@@ -116,4 +121,9 @@ kl = Client(base_url="https://data.kardashevlabs.org")
 
 - API docs: [data.kardashevlabs.org/docs](https://data.kardashevlabs.org/docs)
 - Source: [github.com/kardashev-lab/kardashev-py](https://github.com/kardashev-lab/kardashev-py)
+- Changelog: [CHANGELOG.md](https://github.com/kardashev-lab/kardashev-py/blob/main/CHANGELOG.md)
 - Website: [kardashevlabs.org](https://kardashevlabs.org)
+
+## License
+
+MIT - see [LICENSE](https://github.com/kardashev-lab/kardashev-py/blob/main/LICENSE).
