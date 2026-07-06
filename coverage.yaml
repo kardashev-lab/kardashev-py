@@ -1,0 +1,93 @@
+# Dataset coverage matrix, generated from the actual method list on each
+# direct-ISO class (kardashev/{caiso,ercot,miso,nyiso,isone,spp,pjm}.py).
+#
+# This covers the no-API-key direct ISO scrapers only. The hosted `Client`
+# (data.kardashevlabs.org) normalizes 25+ endpoints across all 7 ISOs
+# uniformly - see README.md "Endpoints" table for that list.
+
+direct_iso_access:
+  CAISO:
+    auth_required: false
+    fuel_mix: true
+    load: true
+    load_forecast: true
+    lmp: true
+    lmp_markets: [RT, DA]
+    curtailment: true
+    generator_outages: true
+    interconnection_queue: false
+
+  ERCOT:
+    auth_required: false
+    fuel_mix: true
+    fuel_mix_historical: true
+    wind_generation: true
+    solar_generation: true
+    load: false
+    load_forecast: true
+    lmp: true
+    lmp_markets: [RT, DA]
+    ancillary_services: true
+    curtailment: false
+    interconnection_queue: false
+
+  MISO:
+    auth_required: false
+    fuel_mix: true
+    fuel_mix_today: true
+    load: false
+    load_forecast: true
+    lmp: true
+    lmp_markets: [RT, DA]
+    generator_outages: true
+    curtailment: false
+    interconnection_queue: false
+
+  NYISO:
+    auth_required: false
+    fuel_mix: true
+    load: true
+    load_forecast: true
+    lmp: true
+    lmp_markets: [RT, DA]
+    interconnection_queue: true
+    curtailment: false
+
+  ISONE:
+    auth_required: partial # LMP requires ISONE_USERNAME/ISONE_PASSWORD; all other endpoints are public
+    fuel_mix: true
+    load: true
+    load_forecast: true
+    lmp: true
+    lmp_markets: [RT]
+    interconnection_queue: true
+    curtailment: false
+
+  SPP:
+    auth_required: false
+    fuel_mix: true
+    fuel_mix_365: true
+    load_forecast: true
+    lmp: true
+    lmp_markets: [RTBM]
+    curtailment: true
+    interconnection_queue: false
+
+  PJM:
+    auth_required: true # requires PJM_USERNAME/PJM_PASSWORD (free DataMiner2 account)
+    fuel_mix: false
+    load: false
+    load_forecast: false
+    lmp: true
+    lmp_markets: [RT, DA]
+    curtailment: false
+    interconnection_queue: false
+
+hosted_api:
+  note: >
+    The Client (data.kardashevlabs.org) provides normalized, uniform coverage
+    across all 7 ISOs for fuel_mix, carbon, lmp, lmp_map, lmp_hubs, load,
+    load_forecast, generation, curtailment, interchange, ancillary, outages,
+    emissions, hydro, solar, and queue, plus non-ISO datasets (nat_gas,
+    weather, nuclear_status, commodities, carbon_markets). See README.md for
+    the full endpoint list.

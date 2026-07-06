@@ -77,6 +77,35 @@ carbon = kl.carbon(iso="ERCOT")
 nodes = kl.lmp_map(iso="PJM", market="RT")
 ```
 
+## Common tasks
+
+Get today's fuel mix for all 7 ISOs in one pass:
+
+```python
+from kardashev import Client
+
+kl = Client()
+mixes = {iso: kl.fuel_mix(iso=iso) for iso in ["CAISO", "ERCOT", "MISO", "NYISO", "ISONE", "SPP", "PJM"]}
+```
+
+Compare real-time LMP across ISOs:
+
+```python
+prices = {iso: kl.lmp(iso=iso, market="RT", limit=1) for iso in ["CAISO", "ERCOT", "PJM"]}
+```
+
+Latest carbon intensity for every ISO in a single call:
+
+```python
+carbon = kl.carbon_latest()
+```
+
+Pull an ISO's interconnection queue to a file:
+
+```python
+kl.queue(iso="MISO").to_csv("miso_queue.csv")
+```
+
 ## Endpoints
 
 | Method | Description |
@@ -134,6 +163,8 @@ Use `gridstatus` if you need Canadian ISOs, EIA data, or the widest dataset cata
 - API docs: [data.kardashevlabs.org/docs](https://data.kardashevlabs.org/docs)
 - Source: [github.com/kardashev-lab/kardashev-py](https://github.com/kardashev-lab/kardashev-py)
 - Changelog: [CHANGELOG.md](https://github.com/kardashev-lab/kardashev-py/blob/main/CHANGELOG.md)
+- Dataset coverage by ISO: [coverage.yaml](https://github.com/kardashev-lab/kardashev-py/blob/main/coverage.yaml)
+- Data sources and refresh cadence: [SOURCES.md](https://github.com/kardashev-lab/kardashev-py/blob/main/SOURCES.md)
 - Website: [kardashevlabs.org](https://kardashevlabs.org)
 
 ## License

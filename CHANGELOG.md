@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.5
+
+- Add `coverage.yaml` (per-ISO dataset support matrix, generated from actual method inventory)
+- Add `SOURCES.md` (data sources and refresh cadence for direct ISO access and the hosted API)
+- Add "Common tasks" section to README
+
 ## 0.2.4
 
 - Add `py.typed` marker
