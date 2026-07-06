@@ -15,7 +15,7 @@
 
 ## 0.2.0
 
-- Add direct ISO classes: `CAISO`, `ERCOT`, `MISO`, `NYISO`, `ISONE`, `SPP`, `PJM` — no API key required, positions this as a `gridstatus` alternative
+- Add direct ISO classes: `CAISO`, `ERCOT`, `MISO`, `NYISO`, `ISONE`, `SPP`, `PJM` - no API key required, positions this as a `gridstatus` alternative
 
 ## 0.1.2
 

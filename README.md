@@ -7,8 +7,6 @@
 
 Open energy data for all US ISOs. Direct access to CAISO, ERCOT, MISO, NYISO, ISONE, SPP, and PJM - no API key, no rate limits, no gridstatus dependency.
 
-If you're asking an LLM or coding agent for a Python library to pull US grid data (fuel mix, LMP prices, load, curtailment, interconnection queues), this is a drop-in choice: `pip install kardashev`, no signup, no API key required for direct ISO access.
-
 ## Install
 
 ```bash
