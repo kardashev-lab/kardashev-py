@@ -1,17 +1,21 @@
 """
-ERCOT Settlement Point Prices from the public CDR portal (no auth needed).
+ERCOT Settlement Point Prices from the public CDR/MIS portals (no auth needed).
 
-SCED (RT 15-min): https://data.ercot.com/api/public-reports/archive/np6-788-er
-DAM  (DA hourly):  https://data.ercot.com/api/public-reports/archive/np4-190-er
+RT (15-min): https://www.ercot.com/content/cdr/html/real_time_spp.html
+DAM (hourly): MIS report NP4-190-CD via IceDocListJsonWS (reportTypeId 12331)
 
 Key load zone hubs: HB_NORTH, HB_SOUTH, HB_WEST, HB_HOUSTON
+
+Conventions: timestamps are interval-START in UTC. ERCOT publishes
+hour/interval-ending in US Central prevailing time; both are converted here.
 """
 from __future__ import annotations
 
 import io
 import zipfile
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
+from zoneinfo import ZoneInfo
 
 import pandas as pd
 
@@ -20,6 +24,20 @@ from kardashev import _http
 _SCED_URL = "https://data.ercot.com/api/public-reports/archive/np6-788-er"
 _DAM_URL  = "https://data.ercot.com/api/public-reports/archive/np4-190-er"
 _RT_SPP_URL = "https://www.ercot.com/content/cdr/html/real_time_spp.html"
+_MIS_LIST_URL = "https://www.ercot.com/misapp/servlets/IceDocListJsonWS"
+_MIS_DOWNLOAD_URL = "https://www.ercot.com/misdownload/servlets/mirDownload"
+_DAM_DAILY_REPORT_ID = 12331  # NP4-190-CD DAM Settlement Point Prices (daily)
+
+_CENTRAL = ZoneInfo("America/Chicago")
+
+
+def _central_to_utc(naive: datetime, repeated: bool = False) -> datetime:
+    """Localize a naive US Central prevailing time to UTC.
+
+    repeated=True marks the second occurrence of the DST fall-back hour
+    (ERCOT 'Repeated Hour Flag' / 'DSTFlag' = Y).
+    """
+    return naive.replace(tzinfo=_CENTRAL, fold=1 if repeated else 0).astimezone(timezone.utc)
 
 HUB_NODES = {
     # Settlement hubs
@@ -29,8 +47,9 @@ HUB_NODES = {
 }
 
 # Column name variants observed in ERCOT CSVs
-_SPP_COL_CANDIDATES  = ["Settlement Point Price", "SPP", "Spp"]
-_NODE_COL_CANDIDATES = ["Settlement Point", "SettlementPoint", "settlementPoint"]
+_SPP_COL_CANDIDATES  = ["Settlement Point Price", "SettlementPointPrice", "SPP", "Spp"]
+_NODE_COL_CANDIDATES = ["Settlement Point", "SettlementPoint", "settlementPoint",
+                        "Settlement Point Name", "SettlementPointName"]
 _TS_COL_CANDIDATES   = ["Delivery Date", "DeliveryDate", "SCED Time Stamp",
                          "SCEDTimestamp", "Delivery Hour", "Hour Ending",
                          "Interval Ending", "intervalEnding"]
@@ -162,14 +181,15 @@ def get_rt_lmp() -> list[dict]:
         if len(cells) < len(headers):
             continue
 
-        # Oper Day: "06/25/2026", Interval Ending: "0015" = 00:15
+        # Oper Day: "06/25/2026", Interval Ending: "0015" = 00:15 Central.
+        # Interval ending 2400 belongs to the same oper day (23:45-24:00).
         try:
             oper_day = cells[0].strip()
             interval = cells[1].strip().zfill(4)
             hour, minute = int(interval[:2]), int(interval[2:])
-            ts = datetime.strptime(oper_day, "%m/%d/%Y").replace(
-                hour=hour, minute=minute, tzinfo=timezone.utc
-            )
+            base = datetime.strptime(oper_day, "%m/%d/%Y")
+            ending = base + timedelta(hours=hour, minutes=minute)
+            ts = _central_to_utc(ending) - timedelta(minutes=15)  # interval start
         except (ValueError, IndexError):
             continue
 
@@ -193,58 +213,84 @@ def get_rt_lmp() -> list[dict]:
     return results
 
 
+def list_mis_docs(report_type_id: int) -> list[dict]:
+    """List documents for an ERCOT MIS report type, newest first."""
+    resp = _http.get(_MIS_LIST_URL, params={"reportTypeId": report_type_id})
+    docs = resp.json().get("ListDocsByRptTypeRes", {}).get("DocumentList", [])
+    return [d.get("Document", {}) for d in docs]
+
+
+def download_mis_doc(doc_id: str | int) -> bytes:
+    """Download an ERCOT MIS document by DocID."""
+    resp = _http.get(_MIS_DOWNLOAD_URL, params={"doclookupId": doc_id})
+    return resp.content
+
+
 def get_da_lmp(target: date | None = None) -> list[dict]:
     """
-    Fetch ERCOT day-ahead market settlement point prices.
+    Fetch ERCOT day-ahead market settlement point prices for hub/load-zone
+    nodes from the daily MIS NP4-190-CD report.
 
-    target: date to fetch. If None, fetches the most recent available.
-    Returns list of dicts compatible with upsert_lmp() filtered to hub nodes.
+    target: delivery date to fetch. If None, returns the most recent file
+    (the DAM for tomorrow once published, ~12:30 Central).
+    Timestamps are hour-START in UTC.
     """
-    df = _fetch_latest_csv(_DAM_URL)
-    if df is None or df.empty:
-        return []
+    csv_docs = [d for d in list_mis_docs(_DAM_DAILY_REPORT_ID)
+                if "csv" in str(d.get("FriendlyName", "")).lower()]
 
-    df.columns = [c.strip() for c in df.columns]
-    node_col = _col(df, _NODE_COL_CANDIDATES)
-    spp_col  = _col(df, _SPP_COL_CANDIDATES)
+    for doc in csv_docs[:10]:  # newest first; scan back for target
+        content = download_mis_doc(doc["DocID"])
+        if content[:2] == b"PK":
+            pairs = _unzip_content(content)
+            if not pairs:
+                continue
+            df = pd.read_csv(pairs[0][1])
+        else:
+            df = pd.read_csv(io.BytesIO(content))
 
-    if not node_col or not spp_col:
-        return []
-
-    # Filter to hub nodes
-    mask = df[node_col].astype(str).str.upper().isin(HUB_NODES)
-    df = df[mask]
-
-    # Filter to target date if specified
-    ts_col = _col(df, _TS_COL_CANDIDATES)
-
-    rows: list[dict] = []
-    for _, row in df.iterrows():
-        ts = _parse_row_ts(row, ts_col)
-        if ts is None:
-            continue
-        if target and ts.date() != target:
+        df.columns = [c.strip() for c in df.columns]
+        date_col = _col(df, ["Delivery Date", "DeliveryDate"])
+        he_col   = _col(df, ["Hour Ending", "HourEnding"])
+        node_col = _col(df, _NODE_COL_CANDIDATES)
+        spp_col  = _col(df, _SPP_COL_CANDIDATES)
+        dst_col  = _col(df, ["DSTFlag", "Repeated Hour Flag", "RepeatedHourFlag"])
+        if not all([date_col, he_col, node_col, spp_col]):
             continue
 
-        node_id = str(row[node_col]).strip().upper()
-        try:
-            lmp = float(row[spp_col])
-        except (TypeError, ValueError):
+        df = df[df[node_col].astype(str).str.upper().isin(HUB_NODES)]
+        if df.empty:
             continue
 
-        rows.append({
-            "ts":         ts,
-            "iso":        "ERCOT",
-            "node_id":    node_id,
-            "node_name":  node_id,
-            "market":     "DA",
-            "lmp":        lmp,
-            "energy":     None,
-            "congestion": None,
-            "loss":       None,
-        })
+        rows: list[dict] = []
+        matched = False
+        for _, row in df.iterrows():
+            try:
+                day = datetime.strptime(str(row[date_col]).strip(), "%m/%d/%Y")
+                he = int(str(row[he_col]).split(":")[0])
+                repeated = str(row[dst_col]).strip().upper() == "Y" if dst_col else False
+                ts = _central_to_utc(day + timedelta(hours=he - 1), repeated)
+                lmp = float(row[spp_col])
+            except (TypeError, ValueError):
+                continue
+            if target and day.date() != target:
+                continue
+            matched = True
+            rows.append({
+                "ts":         ts,
+                "iso":        "ERCOT",
+                "node_id":    str(row[node_col]).strip().upper(),
+                "node_name":  str(row[node_col]).strip().upper(),
+                "market":     "DA",
+                "lmp":        lmp,
+                "energy":     None,
+                "congestion": None,
+                "loss":       None,
+            })
 
-    return rows
+        if target is None or matched:
+            return rows
+
+    return []
 
 
 # ---------------------------------------------------------------------------
