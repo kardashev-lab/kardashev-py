@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/pypi/l/kardashev)](https://github.com/kardashev-lab/kardashev-py/blob/main/LICENSE)
 [![Python](https://img.shields.io/pypi/pyversions/kardashev)](https://pypi.org/project/kardashev/)
 
-Open energy data for all US ISOs. Direct access to CAISO, ERCOT, MISO, NYISO, ISONE, SPP, and PJM - no API key, no rate limits, no gridstatus dependency.
+Open energy data for all US ISOs. Direct access to CAISO, ERCOT, MISO, NYISO, ISONE, SPP, and PJM, no gridstatus dependency. Most endpoints need no API key; ISO-NE and PJM LMP require a free account with that ISO.
 
 ## Install
 
@@ -13,10 +13,10 @@ Open energy data for all US ISOs. Direct access to CAISO, ERCOT, MISO, NYISO, IS
 pip install kardashev
 ```
 
-## Direct ISO access (no API key)
+## Direct ISO access
 
 ```python
-from kardashev import CAISO, ERCOT, MISO, NYISO, ISONE, SPP
+from kardashev import CAISO, ERCOT, MISO, NYISO, ISONE, SPP, PJM
 
 # CAISO
 caiso = CAISO()
@@ -53,6 +53,11 @@ df = isone.get_lmp(market="RT", location=".Z.NEPOOL")
 spp = SPP()
 df = spp.get_fuel_mix()
 df = spp.get_lmp()                  # latest RTBM prices
+
+# PJM (requires PJM_USERNAME + PJM_PASSWORD env vars; free account at dataminer2.pjm.com)
+pjm = PJM()
+df = pjm.get_lmp(market="RT")       # hourly RT LMP for a pricing node
+df = pjm.get_lmp(market="DA")       # hourly DA LMP
 ```
 
 ## Managed API (optional)
@@ -118,12 +123,12 @@ kl.queue(iso="MISO").to_csv("miso_queue.csv")
 | `lmp_hubs(iso)` | Hub/zone node list |
 | `load(iso)` | Actual grid load |
 | `load_forecast(iso)` | Load forecast |
-| `generation(iso)` | Generation by unit type |
 | `curtailment(iso)` | Renewable curtailment |
-| `interchange(iso)` | Tie-line power flows |
+| `interchange(ba)` | Tie-line power flows for a balancing authority |
 | `nat_gas(hub)` | Natural gas spot prices |
 | `nat_gas_storage()` | EIA weekly storage report |
-| `weather(city)` | Weather observations |
+| `weather(iso)` | Hourly temperature at representative ISO hub cities |
+| `bpa()` | BPA 5-min balancing area: wind, hydro, thermal, load |
 | `outages(iso)` | Generator outage reports |
 | `outages_summary()` | Total MW in outage by ISO x type |
 | `ancillary(iso, market)` | Ancillary service prices |
@@ -148,7 +153,7 @@ kl.queue(iso="MISO").to_csv("miso_queue.csv")
 | `steo_forecast()` | EIA Short-Term Energy Outlook |
 | `carbon_markets()` | RGGI/WCI carbon market prices |
 
-Note: `outages()` (unit-level generator outages) currently returns a 500 from the hosted API - a known backend issue, not a client bug. `outages_summary()` works.
+Note: `outages()` (unit-level generator outages), `commodities_coal()`, and `commodities_power_burn()` currently return a 500 from the hosted API - known backend issues, not client bugs. See [coverage.yaml](https://github.com/kardashev-lab/kardashev-py/blob/main/coverage.yaml). `outages_summary()` and the other commodities endpoints work.
 
 ## ISOs supported
 
@@ -164,15 +169,15 @@ kl = Client(base_url="https://data.kardashevlabs.org")
 
 | | kardashev | gridstatus |
 |---|---|---|
-| API key required | No | No (direct ISO access); hosted `gridstatusio` client requires a key |
+| API key required | No, except ISO-NE and PJM LMP (free ISO account) | No (direct ISO access); hosted `gridstatusio` client requires a key |
 | License | MIT | BSD-3-Clause |
 | US ISO coverage | 7 (CAISO, ERCOT, MISO, NYISO, ISONE, SPP, PJM) | 7 US ISOs + IESO, AESO (Canada), plus EIA |
 | Hosted normalized API | Yes, free, no key (`Client`) | Yes, paid tiers (`gridstatusio`) |
-| Direct ISO scrapers | Yes, for 6 of 7 ISOs | Yes, for all covered ISOs |
+| Direct ISO scrapers | Yes, for all 7 ISOs | Yes, for all covered ISOs |
 | Datasets | 25+ | 450+ |
 | Maturity | Early (2026) | 3+ years, funded, staffed |
 
-Use `gridstatus` if you need Canadian ISOs, EIA data, or the widest dataset catalog. Use `kardashev` if you want a free hosted API with no key for the 7 major US ISOs, or direct no-key scrapers for the same set.
+Use `gridstatus` if you need Canadian ISOs, EIA data, or the widest dataset catalog. Use `kardashev` if you want a free hosted API with no key for the 7 major US ISOs, or direct scrapers for the same set (no key needed except ISO-NE and PJM LMP).
 
 ## Links
 
