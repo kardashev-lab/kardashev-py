@@ -10,6 +10,19 @@ Key feeds used:
   da_hrl_lmps  - DA hourly LMP, all nodes (posted morning of delivery day)
 
 Node types: HUB, ZONE, AGGREGATE, BUS, INTERFACE, LOAD_ZONE
+
+KNOWN ISSUE (as of 2026-07-18): PJM appears to have decommissioned this
+CSV feed API entirely. dataminer2.pjm.com/feed/rt_hrl_lmps/csv now returns
+a static, cached copy of the DataMiner2 web app's index.html for any
+request, valid credentials or not (confirmed via response headers: a
+long-lived Cache-Control/Last-Modified pair, served by IIS, identical for
+garbage vs. real username/password). get_lmp_rt_hourly/get_lmp_da_hourly
+will raise a pandas ParserError when this happens ("Expected 1 fields ...
+saw 3") since the HTML gets fed to pd.read_csv. PJM's interconnection
+queue (get_interconnection_queue, above) already lives on their modern
+platform (services.pjm.com, api-subscription-key header) -- LMP fetching
+needs the same kind of migration, to api.pjm.com via apiportal.pjm.com,
+which requires a paid subscription we don't currently have.
 """
 from __future__ import annotations
 
