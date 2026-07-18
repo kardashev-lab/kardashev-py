@@ -5,8 +5,9 @@ Sources (no auth required):
   Fuel mix live  : https://www.ercot.com/api/1/services/read/dashboards/fuel-mix.json
   Fuel mix hist  : https://www.ercot.com/api/1/services/read/dashboards/historical-fuel-mix.json
                    ?startDate={YYYY-MM-DD}&endDate={YYYY-MM-DD}
-  Wind actual    : https://www.ercot.com/api/1/services/read/dashboards/wind-power.json
-  Solar actual   : https://www.ercot.com/api/1/services/read/dashboards/solar-power.json
+  Wind + solar   : https://www.ercot.com/api/1/services/read/dashboards/combine-wind-solar.json
+                   (ERCOT merged the old wind-power/solar-power dashboards into this one
+                   combined, hourly endpoint some time before 2026-07; both old paths 404 now)
   Load actual    : https://www.ercot.com/api/1/services/read/dashboards/load-summary.json
   Seasonal stats : https://www.ercot.com/api/1/services/read/dashboards/season-dashboard.json
 
@@ -98,24 +99,41 @@ def get_fuel_mix_historical(start: date, end: date | None = None) -> pd.DataFram
 # Wind & solar generation
 # ---------------------------------------------------------------------------
 
+def _combine_wind_solar_hourly() -> pd.DataFrame:
+    """Today's hourly wind+solar actual/potential rows from the combined dashboard."""
+    data = _dash("combine-wind-solar")
+    rows = list(data.get("currentDay", {}).get("data", {}).values())
+    return pd.DataFrame(rows)
+
+
 def get_wind_generation() -> pd.DataFrame:
     """
-    Current wind generation + system-wide potential (WGRPP).
-    Columns include: timestamp, actualMW, forecastMW, genMW, ...
+    Current wind generation + system-wide potential (WGRPP), hourly.
+    Columns: timestamp (epoch ms), genMW (actual), wgrppMW (potential).
     """
-    data = _dash("wind-power")
-    rows = data.get("data", {}).get("lzWindOutput", [])
-    return pd.DataFrame(rows)
+    df = _combine_wind_solar_hourly()
+    if df.empty:
+        return df
+    return pd.DataFrame({
+        "timestamp": df["epoch"],
+        "genMW": df["actualWind"],
+        "wgrppMW": df["wgrpp"],
+    })
 
 
 def get_solar_generation() -> pd.DataFrame:
     """
-    Current solar generation + system-wide potential (PVGRPP).
-    Columns include: timestamp, actualMW, forecastMW, genMW, ...
+    Current solar generation + system-wide potential (PVGRPP), hourly.
+    Columns: timestamp (epoch ms), genMW (actual), forecastMW (potential).
     """
-    data = _dash("solar-power")
-    rows = data.get("data", {}).get("solarOutput", [])
-    return pd.DataFrame(rows)
+    df = _combine_wind_solar_hourly()
+    if df.empty:
+        return df
+    return pd.DataFrame({
+        "timestamp": df["epoch"],
+        "genMW": df["actualSolar"],
+        "forecastMW": df["pvgrpp"],
+    })
 
 
 def estimate_curtailment(target: date) -> dict[str, float]:

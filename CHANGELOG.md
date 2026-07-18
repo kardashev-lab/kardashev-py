@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.1
+
+Bug fix release: `_ercot.get_wind_generation()`/`get_solar_generation()` were 404ing. ERCOT retired the separate `wind-power`/`solar-power` dashboard endpoints and merged them into one combined `combine-wind-solar` endpoint with a different (hourly, not 15-min) response shape.
+
+- Fix `get_wind_generation()`/`get_solar_generation()`: point at `combine-wind-solar`, reshape into the same `timestamp`/`genMW`/`wgrppMW` (wind) and `timestamp`/`genMW`/`forecastMW` (solar) columns as before, so no caller-facing changes are needed.
+
 ## 0.3.0
 
 Bug fix release: six `Client` methods were silently calling endpoints that don't exist on the hosted API (always returned 404). Fixed by pointing them at the real endpoints, which required splitting a few into named sub-methods since the API doesn't expose a single unified endpoint for these datasets.
