@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.2
+
+Bug fix: `get_fuel_mix()` for the live `current/fuelsource.csv` stamped bare `HH:MM` times with the **machine/UTC calendar date**. On UTC hosts (Railway), after 17:00 PT the UTC date is already the next day, so evening battery/fuel-mix rows were written one Pacific day ahead and never corrected the real day's evening slots. Symptom: `/generation/battery` Aug 4 evening peaks matched Aug 3's CAISO history.
+
+- Always attach the US/Pacific calendar date before localizing (Pacific today for `current/`, explicit `target` for history).
+
 ## 0.3.1
 
 Bug fix release: `_ercot.get_wind_generation()`/`get_solar_generation()` were 404ing. ERCOT retired the separate `wind-power`/`solar-power` dashboard endpoints and merged them into one combined `combine-wind-solar` endpoint with a different (hourly, not 15-min) response shape.

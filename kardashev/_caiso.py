@@ -125,22 +125,30 @@ def get_fuel_mix(target: date | None = None) -> pd.DataFrame:
 
     Returns DataFrame: timestamp, Solar, Wind, Geothermal, Biomass, Biogas,
       Small_hydro, Coal, Nuclear, Natural_Gas, Large_Hydro, Batteries, Imports, Other
+
+    Timestamps are always US/Pacific calendar dates converted to UTC.
+    The live `current/fuelsource.csv` file is the Pacific day in progress; we must
+    stamp with Pacific today, not the server/UTC date. Otherwise, after 17:00 PT
+    (UTC already next calendar day), evening rows are written one Pacific day ahead
+    and never overwrite the correct day's evening slots.
     """
+    import pytz
+    from datetime import datetime
+
+    _PT = pytz.timezone("US/Pacific")
     if target is None:
         url = "https://www.caiso.com/outlook/current/fuelsource.csv"
+        pacific_day = datetime.now(_PT).date()
     else:
         url = f"https://www.caiso.com/outlook/history/{target.strftime('%Y%m%d')}/fuelsource.csv"
+        pacific_day = target
 
-    import pytz
-    _PT = pytz.timezone("US/Pacific")
     df = _http.get_csv(url)
     df.columns = [c.strip().replace(" ", "_") for c in df.columns]
     df = df.rename(columns={"Time": "timestamp"})
-    raw_ts = (
-        target.isoformat() + " " + df["timestamp"].astype(str)
-        if target else df["timestamp"].astype(str)
-    )
-    # Localize Pacific → UTC so all downstream consumers get tz-aware timestamps
+    # Always attach an explicit Pacific calendar date. Never rely on
+    # pd.to_datetime("HH:MM") defaulting to the machine/UTC date.
+    raw_ts = pacific_day.isoformat() + " " + df["timestamp"].astype(str)
     df["timestamp"] = (
         pd.to_datetime(raw_ts, errors="coerce")
         .dt.tz_localize(_PT, ambiguous="infer", nonexistent="shift_forward")
