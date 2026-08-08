@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/pypi/l/kardashev)](https://github.com/kardashev-lab/kardashev-py/blob/main/LICENSE)
 [![Python](https://img.shields.io/pypi/pyversions/kardashev)](https://pypi.org/project/kardashev/)
 
-Open energy data for all US ISOs. Direct access to CAISO, ERCOT, MISO, NYISO, ISONE, SPP, and PJM, no gridstatus dependency. Most endpoints need no API key; ISO-NE and PJM LMP require a free account with that ISO.
+Open energy data for all US ISOs. Direct access to CAISO, ERCOT, MISO, NYISO, ISONE, SPP, and PJM, no gridstatus dependency. Most endpoints need no API key; ISO-NE LMP needs a free ISO account. Direct `PJM.get_lmp()` still targets decommissioned DataMiner2 CSV feeds - use the hosted `Client` for PJM LMP.
 
 ## Install
 
@@ -54,10 +54,9 @@ spp = SPP()
 df = spp.get_fuel_mix()
 df = spp.get_lmp()                  # latest RTBM prices
 
-# PJM (requires PJM_USERNAME + PJM_PASSWORD env vars; free account at dataminer2.pjm.com)
+# PJM - prefer Client for LMP; public get_lmp() still hits dead DataMiner2 CSV feeds
 pjm = PJM()
-df = pjm.get_lmp(market="RT")       # hourly RT LMP for a pricing node
-df = pjm.get_lmp(market="DA")       # hourly DA LMP
+# df = pjm.get_lmp(market="RT")  # broken as of 2026-07 (DataMiner2 decommissioned)
 ```
 
 ## Managed API (optional)
@@ -169,7 +168,7 @@ kl = Client(base_url="https://data.kardashevlabs.org")
 
 | | kardashev | gridstatus |
 |---|---|---|
-| API key required | No, except ISO-NE and PJM LMP (free ISO account) | No (direct ISO access); hosted `gridstatusio` client requires a key |
+| API key required | No for hosted `Client`; ISO-NE LMP needs a free ISO account; direct PJM hourly LMP is currently broken (use hosted API) | No (direct ISO access); hosted `gridstatusio` client requires a key |
 | License | MIT | BSD-3-Clause |
 | US ISO coverage | 7 (CAISO, ERCOT, MISO, NYISO, ISONE, SPP, PJM) | 7 US ISOs + IESO, AESO (Canada), plus EIA |
 | Hosted normalized API | Yes, free, no key (`Client`) | Yes, paid tiers (`gridstatusio`) |
@@ -177,7 +176,7 @@ kl = Client(base_url="https://data.kardashevlabs.org")
 | Datasets | 25+ | 450+ |
 | Maturity | Early (2026) | 3+ years, funded, staffed |
 
-Use `gridstatus` if you need Canadian ISOs, EIA data, or the widest dataset catalog. Use `kardashev` if you want a free hosted API with no key for the 7 major US ISOs, or direct scrapers for the same set (no key needed except ISO-NE and PJM LMP).
+Use `gridstatus` if you need Canadian ISOs, EIA data, or the widest dataset catalog. Use `kardashev` if you want a free hosted API with no key for the 7 major US ISOs, or direct scrapers for the same set (no key needed except ISO-NE LMP; prefer hosted `Client` for PJM LMP).
 
 ## Links
 

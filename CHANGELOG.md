@@ -5,6 +5,7 @@
 Bug fix: `get_fuel_mix()` for the live `current/fuelsource.csv` stamped bare `HH:MM` times with the **machine/UTC calendar date**. On UTC hosts (Railway), after 17:00 PT the UTC date is already the next day, so evening battery/fuel-mix rows were written one Pacific day ahead and never corrected the real day's evening slots. Symptom: `/generation/battery` Aug 4 evening peaks matched Aug 3's CAISO history.
 
 - Always attach the US/Pacific calendar date before localizing (Pacific today for `current/`, explicit `target` for history).
+- Add `api.pjm.com` helpers for instantaneous load and unverified 5-min RT LMP (public subscription key / optional `PJM_API_KEY`). Public `PJM.get_lmp()` still targets legacy DataMiner2 CSV feeds, which PJM decommissioned in 2026-07.
 
 ## 0.3.1
 

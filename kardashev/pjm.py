@@ -10,11 +10,14 @@ from kardashev import _pjm
 
 class PJM:
     """
-    Direct PJM data client via DataMiner2.
+    Direct PJM data client.
 
-    Requires environment variables:
-      PJM_USERNAME and PJM_PASSWORD
-    Free account at dataminer2.pjm.com
+    `get_lmp()` still calls legacy DataMiner2 hourly CSV feeds
+    (`PJM_USERNAME` / `PJM_PASSWORD`), which PJM decommissioned in 2026-07.
+    Prefer `Client.lmp(iso="PJM", ...)` until this class is rewired to
+    api.pjm.com. Package helpers for instantaneous load and unverified
+    5-min RT LMP already use api.pjm.com (public subscription key /
+    optional `PJM_API_KEY`).
     """
 
     def get_lmp(

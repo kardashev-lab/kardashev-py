@@ -74,11 +74,11 @@ direct_iso_access:
     interconnection_queue: false
 
   PJM:
-    auth_required: true # requires PJM_USERNAME/PJM_PASSWORD (free DataMiner2 account)
+    auth_required: partial # legacy get_lmp() wants PJM_USERNAME/PJM_PASSWORD (DataMiner2 CSV - dead as of 2026-07); api.pjm.com helpers use public subscription key / optional PJM_API_KEY
     fuel_mix: false
-    load: false
+    load: false # get_inst_load exists in _pjm against api.pjm.com but is not yet on the public PJM class
     load_forecast: false
-    lmp: true
+    lmp: true # public PJM.get_lmp() still targets dead DataMiner2 CSV; use Client for working PJM LMP
     lmp_markets: [RT, DA]
     curtailment: false
     interconnection_queue: false

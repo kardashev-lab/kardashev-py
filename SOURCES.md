@@ -12,7 +12,7 @@ The `CAISO`, `ERCOT`, `MISO`, `NYISO`, `ISONE`, `SPP`, and `PJM` classes fetch d
 | NYISO | [mis.nyiso.com](https://mis.nyiso.com/public/csv) (fuel mix, load, LMP, queue) | None |
 | ISO-NE | [irtt.iso-ne.com](https://irtt.iso-ne.com/reports/external) (fuel mix, load, queue); LMP requires a free ISO-NE web services account | `ISONE_USERNAME` / `ISONE_PASSWORD` for LMP only |
 | SPP | [marketplace.spp.org](https://marketplace.spp.org/chart-api/gen-mix/asFile) (fuel mix, curtailment), [portal.spp.org](https://portal.spp.org/file-browser-api/download) (LMP) | None |
-| PJM | [DataMiner2](https://dataminer2.pjm.com/feed) (LMP only) | `PJM_USERNAME` / `PJM_PASSWORD`, free account at dataminer2.pjm.com |
+| PJM | [api.pjm.com](https://api.pjm.com/) (instantaneous load, unverified 5-min RT LMP via public subscription key / optional `PJM_API_KEY`); legacy [DataMiner2](https://dataminer2.pjm.com/feed) CSV feeds for hourly RT/DA LMP are decommissioned as of 2026-07 | Public key for api.pjm.com path; legacy CSV path used `PJM_USERNAME` / `PJM_PASSWORD` |
 
 See `coverage.yaml` for which datasets each ISO class supports.
 
@@ -34,5 +34,6 @@ Carbon intensity (`carbon`, `carbon_latest`) is computed at query time from the 
 ## Known limitations
 
 - Direct ISO scrapers depend on each ISO's page/file format and are not versioned by the ISO - they can break without notice if an ISO changes its feed.
-- ISO-NE and PJM require a free account with the ISO for LMP data; all other datasets on those two ISOs work with no credentials.
+- ISO-NE requires a free account with the ISO for LMP data; all other ISO-NE datasets work with no credentials.
+- `PJM.get_lmp()` still calls DataMiner2 hourly CSV feeds, which return SPA HTML as of 2026-07. Prefer the hosted `Client` for PJM LMP until the public class is rewired to `api.pjm.com`. Instantaneous load and 5-min RT LMP helpers already exist against `api.pjm.com`.
 - The hosted API's interconnection queue data currently covers NYISO, PJM, and ISO-NE on the daily job (`run_queue`) plus a broader multi-ISO queue job (`run_queue_all`); coverage across all 7 ISOs for queue data is not yet uniform.
