@@ -149,7 +149,7 @@ class Client:
         hours: int = 24,
         limit: int = 2000,
     ) -> Any:
-        """Actual grid load (MW) by ISO."""
+        """Actual electricity Demand (MW) by ISO. Demand is consumption, not Large Load."""
         return _to_df(self._get(
             "/load",
             iso=iso.upper() if iso else None,
@@ -164,7 +164,7 @@ class Client:
         iso: Optional[str] = None,
         hours: int = 24,
     ) -> Any:
-        """Load forecast (MW) for the next N hours."""
+        """ISO Demand forecast (MW) for the next N hours. Not a Kardashev Spread Issuance."""
         return _to_df(self._get(
             "/load/forecast",
             iso=iso.upper() if iso else None,
@@ -225,7 +225,7 @@ class Client:
         hours: int = 24,
         limit: int = 2000,
     ) -> Any:
-        """Renewable curtailment (MWh) by ISO."""
+        """Published Curtailment (MWh) at ISO/fuel grain. Not Resource Curtailment."""
         return _to_df(self._get(
             "/curtailment",
             iso=iso.upper() if iso else None,
@@ -526,7 +526,7 @@ class Client:
         fuel_type: Optional[str] = None,
         limit: int = 5000,
     ) -> Any:
-        """Generator interconnection queue entries."""
+        """Interconnection Project Current Observation. Request ID is ISO-native (INR at ERCOT)."""
         return _to_df(self._get(
             "/interconnection-queue",
             iso=iso.upper() if iso else None,
