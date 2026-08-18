@@ -17,7 +17,15 @@ authors:
     affiliation: Kardashev Labs
     website: https://ashu.to
 version: "0.3.2"
+doi: 10.5281/zenodo.21988476
 date-released: "2026-08-08"
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.21988475
+    description: The concept DOI for all versions of kardashev.
+  - type: doi
+    value: 10.5281/zenodo.21988476
+    description: The version DOI of kardashev 0.3.2.
 license: MIT
 repository-code: "https://github.com/kardashev-lab/kardashev-py"
 url: "https://kardashevlabs.org"
