@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it using these metadata.
+type: software
+title: "kardashev: Open US ISO/RTO energy data library"
+abstract: >-
+  Python client for public US ISO/RTO energy data (CAISO, ERCOT, MISO, NYISO,
+  ISO-NE, SPP, PJM): LMP, load, fuel mix, carbon intensity, curtailment, and
+  interconnection queues. Direct ISO scrapers plus an optional hosted Client
+  for data.kardashevlabs.org. This is a software citation, not a frozen
+  archive of the live API. Production LMP on the hosted API is a rolling
+  window. Underlying observations come from the ISOs and should be cited
+  alongside this library.
+authors:
+  - family-names: Mathore
+    given-names: Ashutosh
+    email: ashutosh@kardashevlabs.org
+    affiliation: Kardashev Labs
+    website: https://ashu.to
+version: "0.3.2"
+date-released: "2026-08-08"
+license: MIT
+repository-code: "https://github.com/kardashev-lab/kardashev-py"
+url: "https://kardashevlabs.org"
+keywords:
+  - energy data
+  - electricity
+  - ISO
+  - RTO
+  - LMP
+  - CAISO
+  - ERCOT
+  - MISO
+  - NYISO
+  - ISO-NE
+  - SPP
+  - PJM
+  - power grid

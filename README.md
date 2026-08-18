@@ -187,6 +187,16 @@ Use `gridstatus` if you need Canadian ISOs, EIA data, or the widest dataset cata
 - Data sources and refresh cadence: [SOURCES.md](https://github.com/kardashev-lab/kardashev-py/blob/main/SOURCES.md)
 - Website: [kardashevlabs.org](https://kardashevlabs.org)
 
+## How to cite
+
+This is software, not a frozen dataset. Cite the library if you used `kardashev` or the hosted API client; cite the ISO/RTO (and EIA where relevant) for the underlying observations. Production LMP on `data.kardashevlabs.org` is a rolling window.
+
+```
+Mathore, A. (2026). kardashev: Open US ISO/RTO energy data library (Version 0.3.2) [Computer software]. Kardashev Labs. https://github.com/kardashev-lab/kardashev-py
+```
+
+GitHub also renders a Cite this repository dialog from `CITATION.cff`. A Zenodo software DOI will be added to that file when minted.
+
 ## License
 
 MIT - see [LICENSE](https://github.com/kardashev-lab/kardashev-py/blob/main/LICENSE).
